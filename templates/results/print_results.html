@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Results - Excel Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            font-size: 11pt;
+            color: #000;
+            background: #fff;
+            padding: 10mm;
+        }
+
+        .container {
+            max-width: 100%;
+        }
+
+        /* Filter Section */
+        .filters {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters h2 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+
+        .form-group select {
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+
+        /* Header Section */
+        .page-header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #000;
+        }
+
+        .page-header h1 {
+            font-size: 18pt;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .page-header h2 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .page-header .session-info {
+            font-size: 11pt;
+            margin-top: 5px;
+        }
+
+        /* Excel-style table */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 10pt;
+        }
+
+        .results-table th,
+        .results-table td {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .results-table thead th {
+            background: #d9d9d9;
+            font-weight: bold;
+            text-align: center;
+            font-size: 10pt;
+            padding: 6px 4px;
+        }
+
+        /* Column widths */
+        .col-sn { width: 3%; text-align: center; }
+        .col-matric { width: 12%; }
+        .col-name { width: 20%; }
+        .col-dept { width: 8%; text-align: center; }
+        .col-level { width: 5%; text-align: center; }
+        .col-course-code { width: 10%; }
+        .col-course-name { width: 25%; }
+        .col-test { width: 6%; text-align: center; }
+        .col-exam { width: 6%; text-align: center; }
+        .col-total { width: 6%; text-align: center; font-weight: bold; }
+
+        /* Student grouping */
+        .student-row {
+            background: #f2f2f2;
+        }
+
+        .student-row td {
+            font-weight: 600;
+        }
+
+        .course-row td {
+            background: #fff;
+        }
+
+        .course-row:hover {
+            background: #f9f9f9;
+        }
+
+        /* Zebra striping for student groups */
+        .student-group:nth-child(even) .course-row {
+            background: #fafafa;
+        }
+
+        /* Summary footer */
+        .summary-footer {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border: 1px solid #000;
+            font-size: 10pt;
+        }
+
+        .summary-footer strong {
+            font-weight: bold;
+        }
+
+        /* No results */
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            color: #666;
+        }
+
+        /* Print Styles */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 10mm;
+            }
+
+            body {
+                padding: 0;
+                font-size: 9pt;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .results-table {
+                font-size: 9pt;
+            }
+
+            .results-table th,
+            .results-table td {
+                padding: 2px 4px;
+            }
+
+            .page-header h1 {
+                font-size: 14pt;
+            }
+
+            .page-header h2 {
+                font-size: 12pt;
+            }
+
+            .page-header .session-info {
+                font-size: 10pt;
+            }
+
+            /* Force background colors in print */
+            .results-table thead th {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                background: #d9d9d9 !important;
+            }
+
+            .student-row {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                background: #f2f2f2 !important;
+            }
+
+            /* Prevent page breaks inside student groups */
+            .student-group {
+                page-break-inside: avoid;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 5mm;
+            }
+
+            .filter-form {
+                grid-template-columns: 1fr;
+            }
+
+            .results-table {
+                font-size: 9pt;
+            }
+
+            .results-table th,
+            .results-table td {
+                padding: 3px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Filter Section -->
+        <div class="filters no-print">
+            <h2>Filter Student Results</h2>
+            <form method="get" class="filter-form">
+                <div class="form-group">
+                    <label for="department">Department</label>
+                    <select name="department" id="department">
+                        <option value="">All Departments</option>
+                        {% for dept in departments %}
+                            <option value="{{ dept.id }}" {% if selected_department == dept.id|stringformat:"i" %}selected{% endif %}>
+                                {{ dept.name }} ({{ dept.faculty.code }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="session">Session</label>
+                    <select name="session" id="session">
+                        <option value="">All Sessions</option>
+                        {% for session in sessions %}
+                            <option value="{{ session.id }}" {% if selected_session == session.id|stringformat:"i" %}selected{% endif %}>
+                                {{ session.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="semester">Semester</label>
+                    <select name="semester" id="semester">
+                        <option value="First" {% if selected_semester == "First" %}selected{% endif %}>First Semester</option>
+                        <option value="Second" {% if selected_semester == "Second" %}selected{% endif %}>Second Semester</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="level">Level</label>
+                    <select name="level" id="level">
+                        <option value="">All Levels</option>
+                        <option value="100" {% if selected_level == "100" %}selected{% endif %}>100 Level</option>
+                        <option value="200" {% if selected_level == "200" %}selected{% endif %}>200 Level</option>
+                        <option value="300" {% if selected_level == "300" %}selected{% endif %}>300 Level</option>
+                        <option value="400" {% if selected_level == "400" %}selected{% endif %}>400 Level</option>
+                        <option value="500" {% if selected_level == "500" %}selected{% endif %}>500 Level</option>
+                        <option value="600" {% if selected_level == "600" %}selected{% endif %}>600 Level</option>
+                    </select>
+                </div>
+                
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Filter Results</button>
+                    <button type="button" onclick="window.print()" class="btn btn-secondary">Print Results</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        {% if results %}
+            {% regroup results by student.department as department_list %}
+            
+            {% for department in department_list %}
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>{{ department.grouper.faculty.name }}</h1>
+                    <h2>{{ department.grouper.name }}</h2>
+                    <div class="session-info">
+                        <strong>Session:</strong> {{ results.0.session.name }} | 
+                        <strong>Semester:</strong> {{ results.0.semester }} Semester
+                        {% if selected_level %}
+                        | <strong>Level:</strong> {{ selected_level }}L
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Excel-style Results Table -->
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th class="col-sn">S/N</th>
+                            <th class="col-matric">Matric Number</th>
+                            <th class="col-name">Student Name</th>
+                            <th class="col-dept">Dept</th>
+                            <th class="col-level">Level</th>
+                            <th class="col-course-code">Course Code</th>
+                            <th class="col-course-name">Course Name</th>
+                            <th class="col-test">Test</th>
+                            <th class="col-exam">Exam</th>
+                            <th class="col-total">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% regroup department.list by student as student_list %}
+                        
+                        {% for student_group in student_list %}
+                            <tr class="student-group">
+                                {% for result in student_group.list %}
+                                    {% if forloop.first %}
+                                        <!-- First row for student - show student details -->
+                                        <tr class="course-row">
+                                            <td class="col-sn" rowspan="{{ student_group.list|length }}">{{ forloop.parentloop.counter }}</td>
+                                            <td class="col-matric" rowspan="{{ student_group.list|length }}">{{ result.student.matric_number }}</td>
+                                            <td class="col-name" rowspan="{{ student_group.list|length }}">{{ result.student.name }}</td>
+                                            <td class="col-dept" rowspan="{{ student_group.list|length }}">{{ result.student.department.code }}</td>
+                                            <td class="col-level" rowspan="{{ student_group.list|length }}">{{ result.student.level }}</td>
+                                            <td class="col-course-code">{{ result.course.code }}</td>
+                                            <td class="col-course-name">{{ result.course.name }}</td>
+                                            <td class="col-test">{{ result.test_score|default:"-" }}</td>
+                                            <td class="col-exam">{{ result.exam_score|default:"-" }}</td>
+                                            <td class="col-total">{{ result.total_score|default:"-" }}</td>
+                                        </tr>
+                                    {% else %}
+                                        <!-- Subsequent rows - only show course details -->
+                                        <tr class="course-row">
+                                            <td class="col-course-code">{{ result.course.code }}</td>
+                                            <td class="col-course-name">{{ result.course.name }}</td>
+                                            <td class="col-test">{{ result.test_score|default:"-" }}</td>
+                                            <td class="col-exam">{{ result.exam_score|default:"-" }}</td>
+                                            <td class="col-total">{{ result.total_score|default:"-" }}</td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="summary-footer no-print">
+                    <strong>Total Students:</strong> {{ student_list|length }} | 
+                    <strong>Total Results:</strong> {{ department.list|length }}
+                </div>
+
+                <div style="page-break-after: always;"></div>
+            {% endfor %}
+        {% else %}
+            <div class="no-results">
+                <h3>No Results Found</h3>
+                <p>No results match your selected criteria. Try adjusting your filters.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

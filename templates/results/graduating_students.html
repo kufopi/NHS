@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graduating Students Report - Excel Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            font-size: 11pt;
+            color: #000;
+            background: #fff;
+            padding: 10mm;
+        }
+
+        .container {
+            max-width: 100%;
+        }
+
+        /* Filter Section */
+        .filters {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters h2 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+
+        .form-group select,
+        .form-group input {
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+
+        /* Summary Cards */
+        .summary-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            flex: 1;
+            background: #f8f9fa;
+            border: 2px solid #000;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            font-size: 24pt;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-card p {
+            font-size: 10pt;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #000;
+        }
+
+        .page-header h1 {
+            font-size: 18pt;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .page-header h2 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .page-header .session-info {
+            font-size: 11pt;
+            margin-top: 5px;
+        }
+
+        /* Department Header */
+        .department-header {
+            background: #d9d9d9;
+            border: 2px solid #000;
+            padding: 10px;
+            margin: 20px 0 10px 0;
+            font-weight: bold;
+            font-size: 12pt;
+        }
+
+        /* Excel-style table */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 10pt;
+        }
+
+        .results-table th,
+        .results-table td {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .results-table thead th {
+            background: #d9d9d9;
+            font-weight: bold;
+            text-align: center;
+            font-size: 10pt;
+            padding: 6px 4px;
+        }
+
+        /* Column widths */
+        .col-sn { width: 3%; text-align: center; }
+        .col-matric { width: 12%; }
+        .col-name { width: 18%; }
+        .col-level { width: 5%; text-align: center; }
+        .col-admitted { width: 8%; text-align: center; }
+        .col-course-code { width: 10%; }
+        .col-course-name { width: 25%; }
+        .col-course-level { width: 5%; text-align: center; }
+        .col-session { width: 8%; text-align: center; }
+        .col-semester { width: 8%; text-align: center; }
+        .col-score { width: 6%; text-align: center; font-weight: bold; }
+
+        /* Status badges */
+        .status-pass {
+            background: #d4edda;
+            color: #155724;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 9pt;
+        }
+
+        .status-fail {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 9pt;
+        }
+
+        /* Student summary row */
+        .student-summary {
+            background: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .course-row:hover {
+            background: #f9f9f9;
+        }
+
+        /* Stats in student row */
+        .stats-cell {
+            font-size: 9pt;
+        }
+
+        /* No results */
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            color: #666;
+        }
+
+        /* Print Styles */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 10mm;
+            }
+
+            body {
+                padding: 0;
+                font-size: 9pt;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .results-table {
+                font-size: 8pt;
+            }
+
+            .results-table th,
+            .results-table td {
+                padding: 2px 4px;
+            }
+
+            .page-header h1 {
+                font-size: 14pt;
+            }
+
+            .page-header h2 {
+                font-size: 12pt;
+            }
+
+            .page-header .session-info {
+                font-size: 10pt;
+            }
+
+            .department-header {
+                font-size: 11pt;
+            }
+
+            /* Force background colors in print */
+            .results-table thead th,
+            .department-header,
+            .student-summary {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .status-pass,
+            .status-fail {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            /* Prevent page breaks inside student groups */
+            .student-group {
+                page-break-inside: avoid;
+            }
+
+            .department-section {
+                page-break-after: always;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 5mm;
+            }
+
+            .filter-form {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-section {
+                flex-direction: column;
+            }
+
+            .results-table {
+                font-size: 9pt;
+            }
+
+            .results-table th,
+            .results-table td {
+                padding: 3px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Filter Section -->
+        <div class="filters no-print">
+            <h2>Filter Graduating Students</h2>
+            <form method="get" class="filter-form">
+                <div class="form-group">
+                    <label for="admission_session">Admission Session *</label>
+                    <select name="admission_session" id="admission_session" required>
+                        <option value="">Select Admission Session</option>
+                        {% for session in sessions %}
+                            <option value="{{ session.id }}" {% if selected_admission_session == session.id|stringformat:"i" %}selected{% endif %}>
+                                {{ session.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="graduation_session">Graduation Session *</label>
+                    <select name="graduation_session" id="graduation_session" required>
+                        <option value="">Select Graduation Session</option>
+                        {% for session in sessions %}
+                            <option value="{{ session.id }}" {% if selected_graduation_session == session.id|stringformat:"i" %}selected{% endif %}>
+                                {{ session.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="department">Department</label>
+                    <select name="department" id="department">
+                        <option value="">All Departments</option>
+                        {% for dept in departments %}
+                            <option value="{{ dept.id }}" {% if selected_department == dept.id|stringformat:"i" %}selected{% endif %}>
+                                {{ dept.name }} ({{ dept.faculty.code }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="min_pass_score">Minimum Pass Score</label>
+                    <input type="number" name="min_pass_score" id="min_pass_score" 
+                           value="{{ min_pass_score }}" min="0" max="100" step="0.01">
+                </div>
+                
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                    <button type="button" onclick="window.print()" class="btn btn-secondary">Print Report</button>
+                </div>
+            </form>
+        </div>
+
+        {% if graduating_data %}
+            <!-- Summary Cards -->
+            <div class="summary-section no-print">
+                <div class="summary-card">
+                    <h3>{{ graduating_data|length }}</h3>
+                    <p>Total Students</p>
+                </div>
+                <div class="summary-card">
+                    <h3>{% with total=0 %}{% for data in graduating_data %}{% widthratio data.total_passed 1 1 as add %}{{ total|add:data.total_passed }}{% endfor %}{% endwith %}</h3>
+                    <p>Total Courses Passed</p>
+                </div>
+            </div>
+
+            <!-- Group by Department -->
+            {% regroup graduating_data by student.department as department_list %}
+            
+            {% for department in department_list %}
+                <div class="department-section">
+                    <!-- Page Header -->
+                    <div class="page-header">
+                        <h1>{{ department.grouper.faculty.name }}</h1>
+                        <h2>{{ department.grouper.name }} ({{ department.grouper.code }})</h2>
+                        <div class="session-info">
+                            <strong>Admission Session:</strong> 
+                            {% if selected_admission_session %}
+                                {% for session in sessions %}
+                                    {% if session.id|stringformat:"i" == selected_admission_session %}{{ session.name }}{% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            | <strong>Graduation Session:</strong> 
+                            {% if selected_graduation_session %}
+                                {% for session in sessions %}
+                                    {% if session.id|stringformat:"i" == selected_graduation_session %}{{ session.name }}{% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            | <strong>Pass Mark:</strong> {{ min_pass_score }}
+                        </div>
+                    </div>
+
+                    <div class="department-header">
+                        {{ department.grouper.name }} - {{ department.list|length }} Student{{ department.list|length|pluralize }}
+                    </div>
+                    
+                    <!-- Excel-style Results Table -->
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th class="col-sn">S/N</th>
+                                <th class="col-matric">Matric Number</th>
+                                <th class="col-name">Student Name</th>
+                                <th class="col-level">Level</th>
+                                <th class="col-admitted">Admitted</th>
+                                <th class="col-course-code">Course Code</th>
+                                <th class="col-course-name">Course Name</th>
+                                <th class="col-course-level">C.Level</th>
+                                <th class="col-session">Session</th>
+                                <th class="col-semester">Semester</th>
+                                <th class="col-score">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in department.list %}
+                                <tr class="student-group">
+                                    {% if data.passed_courses %}
+                                        {% for course in data.passed_courses %}
+                                            {% if forloop.first %}
+                                                <!-- First row for student - show student details -->
+                                                <tr class="course-row">
+                                                    <td class="col-sn" rowspan="{{ data.passed_courses|length|add:1 }}">{{ forloop.parentloop.counter }}</td>
+                                                    <td class="col-matric" rowspan="{{ data.passed_courses|length|add:1 }}">{{ data.student.matric_number }}</td>
+                                                    <td class="col-name" rowspan="{{ data.passed_courses|length|add:1 }}">{{ data.student.name }}</td>
+                                                    <td class="col-level" rowspan="{{ data.passed_courses|length|add:1 }}">{{ data.student.level }}</td>
+                                                    <td class="col-admitted" rowspan="{{ data.passed_courses|length|add:1 }}">{{ data.student.session_admitted.name }}</td>
+                                                    <td class="col-course-code">{{ course.code }}</td>
+                                                    <td class="col-course-name">{{ course.name }}</td>
+                                                    <td class="col-course-level">{{ course.level }}</td>
+                                                    <td class="col-session">{{ course.session }}</td>
+                                                    <td class="col-semester">{{ course.semester }}</td>
+                                                    <td class="col-score"><span class="status-pass">{{ course.score }}</span></td>
+                                                </tr>
+                                            {% else %}
+                                                <!-- Subsequent rows - only show course details -->
+                                                <tr class="course-row">
+                                                    <td class="col-course-code">{{ course.code }}</td>
+                                                    <td class="col-course-name">{{ course.name }}</td>
+                                                    <td class="col-course-level">{{ course.level }}</td>
+                                                    <td class="col-session">{{ course.session }}</td>
+                                                    <td class="col-semester">{{ course.semester }}</td>
+                                                    <td class="col-score"><span class="status-pass">{{ course.score }}</span></td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <!-- Summary row for this student -->
+                                        <tr class="student-summary">
+                                            <td colspan="6" style="text-align: right; padding-right: 10px;">
+                                                <strong>SUMMARY:</strong>
+                                            </td>
+                                            <td colspan="2" class="stats-cell">
+                                                <span class="status-pass">Passed: {{ data.total_passed }}</span>
+                                            </td>
+                                            <td colspan="2" class="stats-cell">
+                                                {% if data.total_failed > 0 %}
+                                                <span class="status-fail">Failed: {{ data.total_failed }}</span>
+                                                {% else %}
+                                                <span class="status-pass">Failed: 0</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="stats-cell">
+                                                <strong>Total: {{ data.total_courses }}</strong>
+                                            </td>
+                                        </tr>
+                                    {% else %}
+                                        <!-- Student with no passed courses -->
+                                        <tr class="course-row">
+                                            <td class="col-sn">{{ forloop.counter }}</td>
+                                            <td class="col-matric">{{ data.student.matric_number }}</td>
+                                            <td class="col-name">{{ data.student.name }}</td>
+                                            <td class="col-level">{{ data.student.level }}</td>
+                                            <td class="col-admitted">{{ data.student.session_admitted.name }}</td>
+                                            <td colspan="6" style="text-align: center; font-style: italic; color: #666;">
+                                                No passed courses
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <div class="department-header no-print">
+                        Department Total - Students: {{ department.list|length }} | 
+                        Courses Passed: {% with dept_total=0 %}{% for data in department.list %}{{ dept_total|add:data.total_passed }}{% endfor %}{% endwith %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-results">
+                <h3>No Graduating Students Found</h3>
+                <p>Please select both admission and graduation sessions to generate the report.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

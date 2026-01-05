@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Sheet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .filter-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .filter-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .filter-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        .form-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background-color: #217346;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1a5c37;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        
+        .attendance-sheet {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .sheet-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .sheet-header h1 {
+            margin: 0 0 10px 0;
+            color: #217346;
+            font-size: 24px;
+        }
+        
+        .sheet-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .info-item {
+            display: flex;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #555;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .attendance-table th,
+        .attendance-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        .attendance-table th {
+            background-color: #217346;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .attendance-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .attendance-table tbody tr:hover {
+            background-color: #e9ecef;
+        }
+        
+        .sn-col {
+            width: 50px;
+            text-align: center;
+        }
+        
+        .name-col {
+            width: 250px;
+        }
+        
+        .matric-col {
+            width: 150px;
+        }
+        
+        .week-col {
+            width: 80px;
+            text-align: center;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .filter-section {
+                display: none;
+            }
+            
+            .btn-group {
+                display: none;
+            }
+            
+            .attendance-sheet {
+                box-shadow: none;
+                padding: 20px;
+            }
+            
+            .attendance-table {
+                page-break-inside: auto;
+            }
+            
+            .attendance-table tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <h2>Attendance Sheet Filters</h2>
+        <form method="GET" action="{% url 'attendance_sheet' %}">
+            <div class="filter-group">
+                <div class="form-group">
+                    <label for="department">Department:</label>
+                    <select name="department" id="department">
+                        <option value="">-- Select Department --</option>
+                        {% for dept in departments %}
+                            <option value="{{ dept.id }}" 
+                                {% if selected_department_id == dept.id|stringformat:"s" %}selected{% endif %}>
+                                {{ dept.name }} ({{ dept.faculty.name }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="level">Level:</label>
+                    <select name="level" id="level">
+                        <option value="">-- Select Level --</option>
+                        {% for value, display in level_choices %}
+                            <option value="{{ value }}" 
+                                {% if selected_level == value|stringformat:"s" %}selected{% endif %}>
+                                {{ display }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="session">Session:</label>
+                    <select name="session" id="session">
+                        <option value="">-- Select Session --</option>
+                        {% for sess in sessions %}
+                            <option value="{{ sess.id }}" 
+                                {% if selected_session_id == sess.id|stringformat:"s" %}selected{% endif %}>
+                                {{ sess.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">Generate Attendance Sheet</button>
+                <button type="button" class="btn btn-secondary" onclick="window.print()">Print</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Attendance Sheet -->
+    <div class="attendance-sheet">
+        <div class="sheet-header">
+            <h1>ATTENDANCE SHEET</h1>
+        </div>
+        
+        <div class="sheet-info">
+            <div class="info-item">
+                <span class="info-label">COLLEGE:</span>
+                <span class="info-value">
+                    {% if selected_department %}
+                        {{ selected_department.faculty.name }}
+                    {% else %}
+                        Not Selected
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">CLASS REP:</span>
+                <span class="info-value">_________________</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">DEPT:</span>
+                <span class="info-value">
+                    {% if selected_department %}
+                        {{ selected_department.name }} ({{ selected_department.code }})
+                    {% else %}
+                        Not Selected
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">PHONE:</span>
+                <span class="info-value">_________________</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">LEVEL:</span>
+                <span class="info-value">
+                    {% if selected_level %}
+                        {{ selected_level }}L
+                    {% else %}
+                        Not Selected
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">SESSION:</span>
+                <span class="info-value">
+                    {% if selected_session %}
+                        {{ selected_session.name }}
+                    {% else %}
+                        Not Selected
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        
+        {% if students %}
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th class="sn-col">S/N</th>
+                        <th class="name-col">Name</th>
+                        <th class="matric-col">Matric</th>
+                        <th class="week-col">Week 1</th>
+                        <th class="week-col">Week 2</th>
+                        <th class="week-col">Week 3</th>
+                        <th class="week-col">Week 4</th>
+                        <th class="week-col">Week 5</th>
+                        <th class="week-col">Week 6</th>
+                        <th class="week-col">Week 7</th>
+                        <th class="week-col">Week 8</th>
+                        <th class="week-col">Week 9</th>
+                        <th class="week-col">Week 10</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                        <tr>
+                            <td class="sn-col">{{ forloop.counter }}</td>
+                            <td class="name-col">{{ student.name }}</td>
+                            <td class="matric-col">{{ student.matric_number }}</td>
+                            <td class="week-col"></td>
+                            <td class="week-col"></td>
+                            <td class="week-col"></td>
+                            <td class="week-col"></td>
+                            <td class="week-col"></td>
+                            <td class="week-col"></td>
+                            <td class="week-col"></td>
+                            <td class="week-col"></td>
+                            <td class="week-col"></td>
+                            <td class="week-col"></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 20px; text-align: right; color: #666;">
+                Total Students: <strong>{{ student_count }}</strong>
+            </div>
+        {% else %}
+            <div class="no-data">
+                <p>No students found matching the selected criteria.</p>
+                <p>Please select Department, Level, and Session to generate the attendance sheet.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
