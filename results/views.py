@@ -252,3 +252,71 @@ def attendance_sheet_view(request):
     }
     
     return render(request, 'results/attendance_sheet.html', context)
+
+def student_breakdown_view(request):
+    """
+    Breakdown of total students per level and per department for a given session.
+    """
+    from django.db.models import Count
+
+    session_id = request.GET.get('session')
+    department_id = request.GET.get('department')   # optional filter
+
+    sessions = Session.objects.all().order_by('-start_year')
+    departments = Department.objects.select_related('faculty').all()
+
+    breakdown = []          # list of dicts, one per department
+    grand_total = 0
+    level_totals = {}       # {level: count} across all departments
+    selected_session = None
+
+    LEVEL_CHOICES = [100, 200, 300, 400, 500, 600]
+
+    if session_id:
+        try:
+            selected_session = Session.objects.get(id=session_id)
+        except Session.DoesNotExist:
+            pass
+
+        if selected_session:
+            dept_qs = departments
+            if department_id:
+                dept_qs = dept_qs.filter(id=department_id)
+
+            for dept in dept_qs:
+                level_counts = (
+                    Student.objects
+                    .filter(department=dept, session_admitted=selected_session)
+                    .values('level')
+                    .annotate(count=Count('id'))
+                )
+                counts = {row['level']: row['count'] for row in level_counts}
+                dept_total = sum(counts.values())
+
+                if dept_total == 0:
+                    continue  # skip empty departments
+
+                # accumulate grand totals
+                grand_total += dept_total
+                for lvl, cnt in counts.items():
+                    level_totals[lvl] = level_totals.get(lvl, 0) + cnt
+
+                breakdown.append({
+                    'department': dept,
+                    'counts': counts,           # {100: 12, 200: 8, ...}
+                    'total': dept_total,
+                })
+
+    context = {
+        'sessions': sessions,
+        'departments': departments,
+        'selected_session': selected_session,
+        'selected_session_id': session_id,
+        'selected_department_id': department_id,
+        'breakdown': breakdown,
+        'level_choices': LEVEL_CHOICES,
+        'level_totals': level_totals,
+        'grand_total': grand_total,
+    }
+
+    return render(request, 'results/student_breakdown.html', context)

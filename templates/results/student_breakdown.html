@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Breakdown</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --ink:      #0f1117;
+      --paper:    #f5f2eb;
+      --cream:    #ede9e0;
+      --rule:     #c8c2b4;
+      --accent:   #b85c2a;
+      --accent2:  #2a6eb8;
+      --muted:    #7a7568;
+      --cell-w:   80px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────── */
+    header {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 2.5rem 3rem 2rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    header h1 em {
+      font-style: italic;
+      color: #d4a07a;
+    }
+    header p {
+      font-size: 0.85rem;
+      color: #9e9a93;
+      margin-top: 0.4rem;
+    }
+    .print-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.65rem 1.4rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .print-btn:hover { background: #9a4820; }
+
+    /* ── Filter Bar ──────────────────────────────────── */
+    .filter-bar {
+      background: var(--cream);
+      border-bottom: 1px solid var(--rule);
+      padding: 1.2rem 3rem;
+      display: flex;
+      align-items: flex-end;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .filter-bar label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .filter-bar select {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      padding: 0.5rem 0.8rem;
+      border: 1px solid var(--rule);
+      background: var(--paper);
+      color: var(--ink);
+      min-width: 180px;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7568' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      padding-right: 2rem;
+      cursor: pointer;
+    }
+    .filter-bar select:focus { outline: 2px solid var(--accent); }
+    .filter-btn {
+      background: var(--ink);
+      color: var(--paper);
+      border: none;
+      padding: 0.55rem 1.4rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: background 0.2s;
+    }
+    .filter-btn:hover { background: #2a2d35; }
+
+    /* ── Main ────────────────────────────────────────── */
+    main {
+      padding: 2.5rem 3rem 4rem;
+      max-width: 1400px;
+    }
+
+    /* ── Empty / prompt state ───────────────────────── */
+    .prompt-state {
+      margin-top: 4rem;
+      text-align: center;
+    }
+    .prompt-state .big-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 6rem;
+      color: var(--rule);
+      line-height: 1;
+    }
+    .prompt-state p {
+      color: var(--muted);
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
+
+    /* ── Summary Cards ───────────────────────────────── */
+    .summary-strip {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+    }
+    .summary-card {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 1.2rem 1.8rem;
+      flex: 1;
+      min-width: 140px;
+    }
+    .summary-card .num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.4rem;
+      line-height: 1;
+      color: #d4a07a;
+    }
+    .summary-card .lbl {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #9e9a93;
+      margin-top: 0.3rem;
+    }
+
+    /* ── Section heading ─────────────────────────────── */
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .section-head h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+    }
+    .section-head hr {
+      flex: 1;
+      border: none;
+      border-top: 1px solid var(--rule);
+    }
+
+    /* ── Table ───────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      font-family: 'DM Mono', monospace;
+    }
+    thead th {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 0.75rem 1rem;
+      text-align: center;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    thead th:first-child { text-align: left; min-width: 220px; }
+    thead th:last-child  { background: var(--accent); }
+
+    tbody tr { border-bottom: 1px solid var(--cream); transition: background 0.15s; }
+    tbody tr:hover { background: var(--cream); }
+
+    tbody td {
+      padding: 0.7rem 1rem;
+      text-align: center;
+      color: var(--muted);
+    }
+    tbody td:first-child {
+      text-align: left;
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+    }
+    .dept-faculty {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .cell-val {
+      display: inline-block;
+      min-width: 2rem;
+    }
+    .cell-val.has-students {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .cell-zero { color: var(--rule); }
+
+    .row-total {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      color: var(--accent) !important;
+    }
+
+    tfoot td {
+      background: var(--cream);
+      border-top: 2px solid var(--rule);
+      padding: 0.75rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    tfoot td:first-child { text-align: left; }
+    tfoot td.grand { color: var(--accent); font-size: 1rem; }
+
+    /* pill bar inside cell */
+    .bar-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .bar {
+      height: 4px;
+      background: var(--accent2);
+      border-radius: 2px;
+      opacity: 0.55;
+      min-width: 2px;
+      transition: opacity 0.2s;
+    }
+    tbody tr:hover .bar { opacity: 0.9; }
+
+    /* ── Print styles ─────────────────────────────────── */
+    @media print {
+      header { background: var(--ink) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .filter-bar, .print-btn { display: none; }
+      main { padding: 1rem; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Student <em>Breakdown</em></h1>
+    <p>Enrolment by department &amp; level — academic session report</p>
+  </div>
+  <button class="print-btn" onclick="window.print()">⎙ Print / Export</button>
+</header>
+
+<!-- Filter bar -->
+<form method="get" action="{% url 'student_breakdown' %}">
+  <div class="filter-bar">
+    <label>
+      Session *
+      <select name="session" required>
+        <option value="">— Select session —</option>
+        {% for s in sessions %}
+          <option value="{{ s.id }}" {% if selected_session_id == s.id|stringformat:"s" %}selected{% endif %}>
+            {{ s.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      Department (optional)
+      <select name="department">
+        <option value="">All departments</option>
+        {% for d in departments %}
+          <option value="{{ d.id }}" {% if selected_department_id == d.id|stringformat:"s" %}selected{% endif %}>
+            {{ d.name }} ({{ d.faculty.code }})
+          </option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <button type="submit" class="filter-btn">Generate Report</button>
+  </div>
+</form>
+
+<main>
+
+  {% if not selected_session %}
+    <!-- Prompt state -->
+    <div class="prompt-state">
+      <div class="big-num">∑</div>
+      <p>Select an academic session above to generate the breakdown report.</p>
+    </div>
+
+  {% elif not breakdown %}
+    <div class="prompt-state">
+      <div class="big-num">0</div>
+      <p>No students found for the selected filters.</p>
+    </div>
+
+  {% else %}
+
+    <!-- Summary cards -->
+    <div class="summary-strip">
+      <div class="summary-card">
+        <div class="num">{{ grand_total }}</div>
+        <div class="lbl">Total Students</div>
+      </div>
+      <div class="summary-card">
+        <div class="num">{{ breakdown|length }}</div>
+        <div class="lbl">Departments</div>
+      </div>
+      {% for lvl in level_choices %}
+        {% if level_totals|default_if_none:0 %}
+          {% with cnt=level_totals|default_if_none:0 %}
+          <div class="summary-card">
+            <div class="num">{{ level_totals|default:"—" }}</div>
+            <div class="lbl">{{ lvl }}L Total</div>
+          </div>
+          {% endwith %}
+        {% endif %}
+      {% endfor %}
+      <!-- Per-level summary cards rendered via simple loop -->
+      {% for lvl in level_choices %}
+        <div class="summary-card" style="background:#1a1e28;">
+          <div class="num" style="font-size:1.8rem;">
+            {% for k, v in level_totals.items %}{% if k == lvl %}{{ v }}{% endif %}{% endfor %}
+            {% comment %}fallback zero{% endcomment %}
+          </div>
+          <div class="lbl">{{ lvl }}L</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Section heading -->
+    <div class="section-head">
+      <h2>{{ selected_session.name }} — Enrolment Matrix</h2>
+      <hr/>
+    </div>
+
+    <!-- Breakdown table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Department</th>
+            {% for lvl in level_choices %}
+              <th>{{ lvl }}L</th>
+            {% endfor %}
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in breakdown %}
+            <tr>
+              <td>
+                {{ row.department.name }}
+                <span class="dept-faculty">{{ row.department.faculty.name }} · {{ row.department.code }}</span>
+              </td>
+              {% for lvl in level_choices %}
+                <td>
+                  {% with cnt=row.counts|default_if_none:0 %}
+                    {% for k, v in row.counts.items %}
+                      {% if k == lvl %}
+                        <div class="bar-wrap">
+                          <span class="cell-val has-students">{{ v }}</span>
+                        </div>
+                      {% endif %}
+                    {% endfor %}
+                    {# if level not in counts, show dash #}
+                    {% if lvl not in row.counts %}
+                      <span class="cell-zero">—</span>
+                    {% endif %}
+                  {% endwith %}
+                </td>
+              {% endfor %}
+              <td class="row-total">{{ row.total }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>Column Totals</td>
+            {% for lvl in level_choices %}
+              <td>
+                {% for k, v in level_totals.items %}
+                  {% if k == lvl %}{{ v }}{% endif %}
+                {% endfor %}
+              </td>
+            {% endfor %}
+            <td class="grand">{{ grand_total }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+  {% endif %}
+
+</main>
+
+</body>
+</html>
