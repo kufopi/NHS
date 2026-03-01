@@ -320,3 +320,99 @@ def student_breakdown_view(request):
     }
 
     return render(request, 'results/student_breakdown.html', context)
+
+
+import os
+import mimetypes
+from django.shortcuts import render, get_object_or_404
+from django.http import FileResponse, Http404
+from django.conf import settings
+from .models import Department, Session
+
+
+# ---------------------------------------------------------------------------
+# Place your downloadable files inside:
+#   <your_app>/static/downloads/
+# or use MEDIA_ROOT – adjust DOWNLOAD_ROOT below to match your setup.
+# ---------------------------------------------------------------------------
+DOWNLOAD_ROOT = os.path.join(settings.BASE_DIR, 'results', 'static', 'downloads')
+
+# ---- Resource catalogue ---------------------------------------------------
+# Each entry defines one downloadable resource card shown on the page.
+# Add / remove entries here whenever you upload new materials.
+# ---------------------------------------------------------------------------
+RESOURCES = [
+    {
+        "id": "excel_instructions",
+        "title": "Excel Assessment — Instructions",
+        "description": (
+            "Full exam brief for the Microsoft Excel Skills Assessment. "
+            "Read this carefully before opening the practice file. "
+            "Covers all 25 questions across Filtering, Sorting, Conditional "
+            "Formatting, IF Formulas, SUMIF, Charts and the Bonus section."
+        ),
+        "filename": "Excel_Assessment_Instructions.docx",
+        "icon": "📄",
+        "badge": "Instructions",
+        "badge_color": "primary",
+        "audience": "Excel Assessment students",
+    },
+    {
+        "id": "excel_workbook",
+        "title": "Excel Assessment — Practice Workbook",
+        "description": (
+            "The structured Excel workbook you will submit as your answer. "
+            "Each question already has its own dedicated worksheet. "
+            "Rename the file to [Your Full Name] — Excel Assessment.xlsx "
+            "before submitting to the Class Representative."
+        ),
+        "filename": "excel_practice_restructured.xlsx",
+        "icon": "📊",
+        "badge": "Workbook",
+        "badge_color": "success",
+        "audience": "Excel Assessment students",
+    },
+]
+# ---------------------------------------------------------------------------
+
+
+def downloads_page(request):
+    """
+    Renders the student downloads page.
+    No authentication is enforced here – add @login_required if needed.
+    """
+    context = {
+        "resources": RESOURCES,
+        "page_title": "Student Resources & Downloads",
+    }
+    return render(request, "results/downloads.html", context)
+
+
+def download_file(request, file_id):
+    """
+    Serves a file for download by its resource id.
+    Only files declared in RESOURCES above can be served – nothing else
+    on the filesystem is reachable through this view.
+    """
+    resource = next((r for r in RESOURCES if r["id"] == file_id), None)
+    if resource is None:
+        raise Http404("Resource not found.")
+
+    file_path = os.path.join(DOWNLOAD_ROOT, resource["filename"])
+
+    if not os.path.isfile(file_path):
+        raise Http404(
+            f"File '{resource['filename']}' has not been uploaded to the server yet. "
+            "Please contact your instructor."
+        )
+
+    mime_type, _ = mimetypes.guess_type(file_path)
+    mime_type = mime_type or "application/octet-stream"
+
+    response = FileResponse(
+        open(file_path, "rb"),
+        content_type=mime_type,
+        as_attachment=True,
+        filename=resource["filename"],
+    )
+    return response

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Resources &amp; Downloads</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --ink:    #0f1117;
+      --paper:  #f5f2eb;
+      --cream:  #ede9e0;
+      --rule:   #c8c2b4;
+      --accent: #b85c2a;
+      --accent2:#2a6eb8;
+      --muted:  #7a7568;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────── */
+    header {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 2.5rem 3rem 2rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    header h1 em {
+      font-style: italic;
+      color: #d4a07a;
+    }
+    header p {
+      font-size: 0.85rem;
+      color: #9e9a93;
+      margin-top: 0.4rem;
+    }
+
+    /* ── Notice Banner ───────────────────────────────── */
+    .notice {
+      background: var(--cream);
+      border-bottom: 1px solid var(--rule);
+      border-left: 4px solid var(--accent);
+      padding: 1rem 3rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+    }
+    .notice-icon { font-size: 1.1rem; margin-top: 0.1rem; flex-shrink: 0; }
+    .notice p { font-size: 0.875rem; color: var(--ink); line-height: 1.6; }
+    .notice strong { font-weight: 600; }
+    .notice .deadline { color: var(--accent); font-weight: 700; }
+    .notice code {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      background: rgba(0,0,0,0.07);
+      padding: 0.1rem 0.4rem;
+      color: var(--ink);
+    }
+
+    /* ── Main ────────────────────────────────────────── */
+    main {
+      padding: 2.5rem 3rem 4rem;
+      max-width: 1200px;
+    }
+
+    /* ── Section heading ─────────────────────────────── */
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+    }
+    .section-head h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+    .section-head hr {
+      flex: 1;
+      border: none;
+      border-top: 1px solid var(--rule);
+    }
+
+    /* ── Resource Cards Grid ─────────────────────────── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .resource-card {
+      background: #fff;
+      border: 1px solid var(--rule);
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.2s;
+    }
+    .resource-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+
+    .card-stripe {
+      padding: 1.2rem 1.5rem 1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .card-stripe.blue  { background: var(--accent2); }
+    .card-stripe.burnt { background: var(--accent);  }
+
+    .card-icon { font-size: 2rem; line-height: 1; flex-shrink: 0; }
+
+    .card-stripe-text h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.15rem;
+      color: #fff;
+      line-height: 1.2;
+      font-weight: 400;
+    }
+    .card-stripe-text small {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.65);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 0.25rem;
+      display: block;
+    }
+
+    .card-body {
+      padding: 1.2rem 1.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .card-body p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.65;
+      flex: 1;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .filename-pill {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      background: var(--cream);
+      border: 1px solid var(--rule);
+      padding: 0.25rem 0.55rem;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 210px;
+    }
+    .badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      flex-shrink: 0;
+    }
+    .badge.blue  { background: var(--accent2); color: #fff; }
+    .badge.burnt { background: var(--accent);  color: #fff; }
+
+    .download-btn {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      padding: 0.7rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border: 2px solid var(--ink);
+      color: var(--ink);
+      background: transparent;
+      transition: background 0.18s, color 0.18s, border-color 0.18s;
+      cursor: pointer;
+    }
+    .download-btn:hover                { background: var(--ink);    border-color: var(--ink);    color: var(--paper); }
+    .download-btn.blue:hover           { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+    .download-btn.burnt:hover          { background: var(--accent);  border-color: var(--accent);  color: #fff; }
+
+    /* ── Steps Table ─────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+
+    .steps-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      font-family: 'DM Mono', monospace;
+    }
+    .steps-table thead th {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 0.75rem 1.2rem;
+      text-align: left;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .steps-table thead th:first-child { width: 3rem; text-align: center; }
+    .steps-table thead th:last-child  { background: var(--accent); }
+
+    .steps-table tbody tr { border-bottom: 1px solid var(--cream); transition: background 0.15s; }
+    .steps-table tbody tr:hover { background: var(--cream); }
+
+    .steps-table td {
+      padding: 0.85rem 1.2rem;
+      vertical-align: top;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .steps-table td:first-child {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      color: var(--accent);
+      text-align: center;
+      padding-top: 0.7rem;
+    }
+    .steps-table td:nth-child(2) {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .steps-table td strong { color: var(--ink); font-weight: 600; }
+    .steps-table code {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      background: var(--cream);
+      border: 1px solid var(--rule);
+      padding: 0.1rem 0.4rem;
+      color: var(--ink);
+    }
+    .deadline { color: var(--accent); font-weight: 700; }
+
+    /* ── Print ───────────────────────────────────────── */
+    @media print {
+      header { background: var(--ink) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .notice { display: none; }
+      .download-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────────── -->
+<header>
+  <div>
+    <h1>Student <em>Downloads</em></h1>
+    <p>Assessment materials &amp; resources — current academic session</p>
+  </div>
+</header>
+
+<!-- ── Notice ──────────────────────────────────────────────────────────── -->
+<div class="notice">
+  <span class="notice-icon">⚠️</span>
+  <p>
+    These files are for <strong>registered students only</strong>. Please do not share download links outside your class. &nbsp;·&nbsp;
+    <strong>Excel Assessment deadline:</strong>
+    <span class="deadline">Thursday, 6th March 2026</span> — submit your completed file renamed to
+    <code>[Your Full Name] — Excel Assessment.xlsx</code> to the <strong>Class Representative</strong>.
+  </p>
+</div>
+
+<!-- ── Main ────────────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- Section heading -->
+  <div class="section-head">
+    <h2>Excel Assessment — Materials</h2>
+    <hr/>
+  </div>
+
+  <!-- Resource cards -->
+  <div class="cards-grid">
+
+    <!-- Card 1: Instructions -->
+    <div class="resource-card">
+      <div class="card-stripe blue">
+        <span class="card-icon">📄</span>
+        <div class="card-stripe-text">
+          <h3>Assessment Instructions</h3>
+          <small>Excel Assessment students</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>
+          Full exam brief for the Microsoft Excel Skills Assessment.
+          Read this carefully before opening the practice file.
+          Covers all 25 questions across Filtering, Sorting, Conditional
+          Formatting, IF Formulas, SUMIF, Charts and the Bonus section.
+        </p>
+        <div class="card-meta">
+          <span class="filename-pill">Excel_Assessment_Instructions.docx</span>
+          <span class="badge blue">Instructions</span>
+        </div>
+        <a href="{% url 'download_file' 'excel_instructions' %}" class="download-btn blue">
+          ⬇&nbsp; Download Instructions
+        </a>
+      </div>
+    </div>
+
+    <!-- Card 2: Workbook -->
+    <div class="resource-card">
+      <div class="card-stripe burnt">
+        <span class="card-icon">📊</span>
+        <div class="card-stripe-text">
+          <h3>Practice Workbook</h3>
+          <small>Excel Assessment students</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>
+          The structured Excel workbook you will submit as your answer.
+          Each question already has its own dedicated worksheet.
+          Rename the file to <em>[Your Full Name] — Excel Assessment.xlsx</em>
+          before submitting to the Class Representative.
+        </p>
+        <div class="card-meta">
+          <span class="filename-pill">excel_practice_restructured.xlsx</span>
+          <span class="badge burnt">Workbook</span>
+        </div>
+        <a href="{% url 'download_file' 'excel_workbook' %}" class="download-btn burnt">
+          ⬇&nbsp; Download Workbook
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Section heading -->
+  <div class="section-head">
+    <h2>How to Submit</h2>
+    <hr/>
+  </div>
+
+  <!-- Steps table -->
+  <div class="table-wrap">
+    <table class="steps-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Step</th>
+          <th>What to do</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Download both files</td>
+          <td>
+            Get the <strong>Instructions</strong> document and the <strong>Practice Workbook</strong> above.
+            Read the instructions fully before you begin.
+          </td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Complete your work</td>
+          <td>
+            Answer each question on its dedicated worksheet.
+            Do <strong>not</strong> rename, delete, or rearrange any sheet.
+            All 25 questions must be attempted.
+          </td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Rename &amp; save</td>
+          <td>
+            Save your file as <code>[Your Full Name] — Excel Assessment.xlsx</code><br/>
+            e.g. <code>Amaka Osei — Excel Assessment.xlsx</code>
+          </td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Submit to Class Rep</td>
+          <td>
+            Send to the <strong>Class Representative</strong> no later than
+            <span class="deadline">Thursday, 6th March 2026</span>.
+            Late submissions will not be accepted without prior arrangement.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+</body>
+</html>
