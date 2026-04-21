@@ -126,13 +126,36 @@ class StudentAdmin(admin.ModelAdmin):
     list_display = ['matric_number', 'name', 'department', 'level', 'session_admitted']
     list_filter = ['department', 'level', 'session_admitted']
     search_fields =  ['matric_number', 'name']
+
+    
     
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
             path('bulk-upload/', self.bulk_upload_students, name='bulk_upload_students'),
+            path('promote/', self.promote_students, name='promote_students'),  # ADD THIS
         ]
         return custom_urls + urls
+    
+    def promote_students(self, request):
+        if request.method == 'POST':
+            department_id = request.POST.get('department')
+            from_level = int(request.POST.get('from_level', 0))
+            
+            qs = Student.objects.filter(level=from_level)
+            if department_id:
+                qs = qs.filter(department_id=department_id)
+            
+            next_level = from_level + 100
+            count = qs.update(level=next_level)
+            messages.success(request, f'Promoted {count} students from {from_level}L to {next_level}L')
+            return redirect('../')
+    
+        from .models import Department
+        return render(request, 'admin/promote_students.html', {
+            'departments': Department.objects.all(),
+            'level_choices': Student._meta.get_field('level').choices,
+        })
     
     def bulk_upload_students(self, request):
         if request.method == 'POST':

@@ -1,0 +1,32 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div style="max-width: 600px; margin: 20px auto; padding: 20px;">
+    <h1>Promote Students to Next Level</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 15px;">
+            <label><strong>Department (optional — leave blank for all):</strong></label>
+            <select name="department" style="display:block; width:100%; padding:8px; margin-top:5px;">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label><strong>Promote FROM level:</strong></label>
+            <select name="from_level" style="display:block; width:100%; padding:8px; margin-top:5px;">
+                {% for value, display in level_choices %}
+                    {% if value != 600 %}
+                        <option value="{{ value }}">{{ display }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" style="background:#007bff; color:white; padding:10px 20px; border:none; border-radius:4px; cursor:pointer;">
+            Promote Students
+        </button>
+        <a href=".." style="margin-left:10px; padding:10px 20px; background:#6c757d; color:white; text-decoration:none; border-radius:4px;">Cancel</a>
+    </form>
+</div>
+{% endblock %}
